@@ -41,11 +41,11 @@ app.get('/logout', (req: any, res: any) => {
   res.redirect('/')
 })
 
-app.get('/signin', (req: any, res: any, next: any) => {
-  res.render('signin')
+app.get('/signup', (req: any, res: any, next: any) => {
+  res.render('signup')
 })
 
-app.post('/signin', (req: any, res: any, next: any) => {
+app.post('/signup', (req: any, res: any, next: any) => {
   const user = new User(1,req.body.username,req.body.password)
   db.save(0, user, (err: Error | null) => {
     if (err) {
@@ -64,8 +64,6 @@ app.post('/login', (req: any, res: any, next: any) => {
   db.login(req.body.username, req.body.password, (err: Error | null, result?: boolean) => {
     if (err) next(err)
     if (result == false) {
-      res.write('not connected')
-      res.send()
       res.redirect('/login')
     } else {
       req.session.loggedIn = true
@@ -76,7 +74,12 @@ app.post('/login', (req: any, res: any, next: any) => {
 })
 
 app.get('/newmetric', (req: any, res: any, next: any) => {
-  res.render('newmetric')
+  if(req.session.loggedIn == true){
+    res.render('newmetric')
+  }else{
+    res.redirect('/')
+  }
+  res.end()
 })
 
 app.post('/newmetric', (req: any, res: any, next: any) => {
@@ -84,14 +87,29 @@ app.post('/newmetric', (req: any, res: any, next: any) => {
   dbmetrics.save(metric, (err: Error | null, result?: boolean) => {
     if (err) next(err)
     if (result == false) {
-      res.write('not connected')
-      res.send()
       res.redirect('/')
     } else {
-      res.write('new metric')
-      res.send()
+      res.redirect('/')
     }
   })
+})
+
+app.get('/metriclist', (req: any, res: any, next: any) => {
+  if(req.session.loggedIn == true){
+    dbmetrics.get(req.session.user, (err: Error | null, result?: Metric[]) => {
+      if (err) throw err
+      if (result === undefined) {
+        console.log("undefined")
+        //res.write('no result')
+        //res.send()
+      } else {
+        //console.log("result")
+        res.json(result)
+      }
+    })
+  }else{
+    res.redirect('/')
+  }
 })
 
 app.listen(port, (err: Error) => {
