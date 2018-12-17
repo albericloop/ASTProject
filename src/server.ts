@@ -7,6 +7,7 @@ import {User} from './users'
 
 app.use(bodyparser.json())
 app.use(bodyparser.urlencoded())
+const db = new UsersHandler('./db/users')
 
 app.get('/', (req: any, res: any) => {
   res.write('Hello world')
@@ -20,7 +21,6 @@ app.get('/test', (req: any, res: any) => {
 
 app.get('/signin/:id', (req: any, res: any) => {
   const user = new User(req.params.id,"test","test")
-  const db = new UsersHandler('./db/users')
   db.save(7, user, (err: Error | null) => {
     if (err) {
       throw err
@@ -31,15 +31,15 @@ app.get('/signin/:id', (req: any, res: any) => {
   res.end()
 })
 
-app.get('/user/:id', (req: any, res: any, next: any) => {
-  const db = new UsersHandler('./db/users')
-  db.get(req.params.id, (err: Error | null, result?: User[]) => {
+app.get('/login/:username', (req: any, res: any, next: any) => {
+  db.login(req.params.username, req.params.username, (err: Error | null, result?: boolean) => {
     if (err) next(err)
-    if (result === undefined) {
-      res.write('no result')
+    if (result == false) {
+      res.write('not connected')
       res.send()
     } else {
-      res.json(result)
+      res.write('connected')
+      res.send()
     }
   })
 })

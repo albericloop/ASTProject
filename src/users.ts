@@ -51,22 +51,20 @@ export class UsersHandler {
       })
   }
 
-  public login(username: string, password: string, callback: (err: Error | null, result?: boolean = false) => void) {
+  public login(usernameP: string, passwordP: string, callback: (err: Error | null, result?: boolean) => void) {
     const stream = this.db.createReadStream()
-    var user: User[] = []
+    var login: boolean = false
     stream.on('error', callback)
       .on('end', (err: Error) => {
-        callback(null, user)
+        callback(null, login)
       })
       .on('data', (data: any) => {
         const [_, k, username, password] = data.key.split(":")
         const value = data.value
-        if (username != username) {
-          return false
-          console.log(`no item for that key`)
-        } else if(password == password){
-          return true
-          //user.push(new User(value, username, password))
+        if (username == usernameP) {
+          if(password == passwordP){
+            login = true
+          }
         }
       })
   }
