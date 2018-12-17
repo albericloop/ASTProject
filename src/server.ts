@@ -19,16 +19,26 @@ app.get('/test', (req: any, res: any) => {
 })
 
 app.get('/signin', (req: any, res: any) => {
-  const user = [new User(1,"name","password")]
-  const db = new UsersHandler('./db')
+  const user = new User(3,"test","test")
+  const db = new UsersHandler('./db/users')
   db.save(0, user, (err: Error | null) => {
     if (err) {
       throw err
     }
     //res.json(result)
   })
-  res.write('Hello signin')
+  res.write('signin test')
   res.end()
+})
+
+app.get('/metrics', (req: any, res: any) => {
+  const db = new UsersHandler('./db/users')
+  db.get("test", function (err: Error | null, result?: User){
+    if (err) {
+      throw err
+    }
+    res.json(result)
+  })
 })
 
 app.listen(port, (err: Error) => {
