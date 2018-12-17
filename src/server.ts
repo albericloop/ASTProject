@@ -5,6 +5,8 @@ const port: string = process.env.PORT || '8081'
 import {UsersHandler} from './users'
 import {User} from './users'
 
+app.set('view engine', 'ejs')
+app.set('views', __dirname + '/../views')
 app.use(bodyparser.json())
 app.use(bodyparser.urlencoded())
 const db = new UsersHandler('./db/users')
@@ -31,8 +33,9 @@ app.get('/signin/:id', (req: any, res: any) => {
   res.end()
 })
 
-app.get('/login/:username', (req: any, res: any, next: any) => {
-  db.login(req.params.username, req.params.username, (err: Error | null, result?: boolean) => {
+app.get('/login', (req: any, res: any, next: any) => {
+  res.render('login')
+  /*db.login(req.params.username, req.params.username, (err: Error | null, result?: boolean) => {
     if (err) next(err)
     if (result == false) {
       res.write('not connected')
@@ -41,8 +44,20 @@ app.get('/login/:username', (req: any, res: any, next: any) => {
       res.write('connected')
       res.send()
     }
-  })
+  })*/
 })
+
+app.post('/login', (req: any, res: any, next: any) => {
+    db.login(req.body.username, req.body.password, (err: Error | null, result?: boolean) => {
+      if (err) next(err)
+      if (result == false) {
+        res.write('not connected')
+        res.send()
+      } else {
+        res.redirect('/')
+      }
+    })
+  })
 
 app.listen(port, (err: Error) => {
   if (err) {
