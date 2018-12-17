@@ -29,18 +29,33 @@ export class UsersHandler {
     const stream = WriteStream(this.db)
     stream.on('error', callback)
     stream.on('close', callback)
-    //users.forEach((m: User) => {
-      stream.write({ key: user.id, value: `try:${user.username}${user.password}` })
-      //stream.write({ key: `metric:${key}${m.timestamp}`, value: m.value })
-    //})
+    stream.write({ key: `user:${key}:${user.username}:${user.password}`, value: user.id, })
     stream.end()
   }
 
-  public get(username: string, callback: (err: Error | null, result?: User) => void) {
+  /*public get(username: string, callback: (err: Error | null, result?: User) => void) {
     this.db.get(`user:${username}`, function (err: Error, data: any) {
       if (err) callback(err)
       else if (data === undefined) callback(null, data)
       //else callback(null, User.fromDb(username, data))
     })
+  }*/
+
+  public get(key: string, callback: (err: Error | null, result?: User[]) => void) {
+    const stream = this.db.createReadStream()
+    var user: User[] = []
+    stream.on('error', callback)
+      .on('end', (err: Error) => {
+        callback(null, user)
+      })
+      .on('data', (data: any) => {
+        const [_, k, username, password] = data.key.split(":")
+        const value = data.value
+        if (key != k) {
+          console.log(`no item for that key`)
+        } else {
+          user.push(new User(value, username, password))
+        }
+      })
   }
 }

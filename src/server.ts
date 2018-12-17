@@ -18,10 +18,10 @@ app.get('/test', (req: any, res: any) => {
   res.end()
 })
 
-app.get('/signin', (req: any, res: any) => {
-  const user = new User(3,"test","test")
+app.get('/signin/:id', (req: any, res: any) => {
+  const user = new User(req.params.id,"test","test")
   const db = new UsersHandler('./db/users')
-  db.save(0, user, (err: Error | null) => {
+  db.save(7, user, (err: Error | null) => {
     if (err) {
       throw err
     }
@@ -31,13 +31,16 @@ app.get('/signin', (req: any, res: any) => {
   res.end()
 })
 
-app.get('/metrics', (req: any, res: any) => {
+app.get('/user/:id', (req: any, res: any, next: any) => {
   const db = new UsersHandler('./db/users')
-  db.get("test", function (err: Error | null, result?: User){
-    if (err) {
-      throw err
+  db.get(req.params.id, (err: Error | null, result?: User[]) => {
+    if (err) next(err)
+    if (result === undefined) {
+      res.write('no result')
+      res.send()
+    } else {
+      res.json(result)
     }
-    res.json(result)
   })
 })
 
